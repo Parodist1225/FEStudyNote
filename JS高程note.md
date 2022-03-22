@@ -12,13 +12,13 @@ Safari - WebKit/JavaScriptCore
 微软- Trident/EdgeHTML/Chakra
 
 ~~提到的希望~~具有的的前置技术：
- Java
- PHP
- Python
- Ruby
- Golang
- HTML
- CSS 
+[]Java
+[]PHP
+[x]Python  a little
+[] Ruby
+[] Golang
+[x] HTML   a little
+[x] CSS    a little
 ****
 2022.3.21
 ## No1. 什么是 JavaScript
@@ -380,7 +380,7 @@ let num3 = parseFloat("22.5"); // 22.5
 let num4 = parseFloat("22.34.5"); // 22.34
 let num5 = parseFloat("0908.5"); // 908.5 
 ```
-##### 5.String 类型
+#### ⑥.String 类型
 表示零或多个 16 位 Unicode 字符序列
 可由双引号（"）、单引号（'）或反引号（`）标示
 ###### (1) 字符字面量
@@ -510,7 +510,7 @@ String.raw 标签函数：直接获取原始的模板字面量内容
 `console.log(`\u00A9`); // ©
 console.log(String.raw`\u00A9`); // \u00A9`
 
-##### 6. Symbol 类型
+#### ⑦. Symbol 类型
 ES6新增，**符号是原始值，且符号实例是唯一、不可变的**。(PS:这意味着两个Symbol做==比较为false)
 符号的用途是确保对象属性使用唯一标识符，不会发生属性冲突的危险
 ###### (1). 符号的基本用法
