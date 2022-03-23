@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <script>
+    let a = 6;
+    let b = 9;
+    function zipTag(strings, ...expressions) {
+      console.log(strings[0]);
+      for (const expression of expressions) {
+        console.log(expression);
+      }
+      return strings[0] +
+        expressions.map((e, i) => `${e}${strings[i + 1]}`)
+          .join('');
+    }
+    let taggedResult = zipTag`${a} + ${b} = ${a + b}`;
+    console.log(taggedResult); // "6 + 9 = 15" 
+  </script>
+  </body>
+
+</html>

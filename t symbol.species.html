@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    class MyArray extends Array {
+      // 覆盖 species 到父级的 Array 构造函数上
+      static get [Symbol.species]() { return Array; }
+    }
+    var a = new MyArray(1, 2, 3);
+    var b = new MyArray();
+    var mapped = a.map(x => x * x);
+    var c = b.concat("s");
+    console.log(a instanceof MyArray);//t
+    console.log(b instanceof MyArray);//t
+    console.log(c instanceof MyArray);//f
+    console.log(mapped instanceof MyArray); // false
+    console.log(mapped instanceof Array);   // true
+
+    class Bar extends Array { }
+    let bar = new Bar();
+    console.log(bar); // true
+ 
+    bar = bar.concat('bar');
+    console.log(bar); // true
+
+
+    class Baz extends Array {
+      // 覆盖 species 到父级的 Array 构造函数上
+      static get [Symbol.species]() {
+        return Array;
+      }
+    }
+    let baz = new Baz();//创建Baz实例
+    console.log(baz);
+    baz = baz.concat('baz');
+    console.log(baz);
+  </script>
+</body>
+
+</html>
