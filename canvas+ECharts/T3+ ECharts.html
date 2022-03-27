@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ECharts</title>
+    <!-- 引入刚刚下载的 ECharts 文件 -->
+    <script src="echarts.js"></script>
+  </head>
+  <body>
+    <!-- 为 ECharts 准备一个定义了宽高的 DOM -->
+    <div id="main" style="width: 100%;height: 400px;;"></div>
+    <script type="text/javascript">
+      // 基于准备好的dom，初始化echarts实例
+      var myChart = echarts.init(document.getElementById('main'));
+      window.onresize = function(){
+        myChart.resize();
+      };
+      
+var option = {
+  dataset: [
+    {
+      // 这个 dataset 的 index 是 `0`。
+      source: [
+        ['Product', 'Sales', 'who'],
+        ['餐饮40%',40 , 1],
+        ['零食30%',30 , 1],
+        ['日用品20%',20 , 1],
+        ['人情往来10%',10 , 1],
+        ['人情往来10%',10 , 2],
+      ]
+      // id: 'a'
+    },
+    {
+      // 这个 dataset 的 index 是 `1`。
+      // 这个 `transform` 配置，表示，此 dataset 的数据，来自于此 transform 的结果。
+      transform: {
+        type: 'filter',
+        config: { dimension: 'who', value: 1 }
+      }
+      // 我们还可以设置这些可选的属性： `fromDatasetIndex` 或 `fromDatasetId`。
+      // 这些属性，指定了，transform 的输入，来自于哪个 dataset。例如，
+      // `fromDatasetIndex: 0` 表示输入来自于 index 为 `0` 的 dataset 。又例如，
+      // `fromDatasetId: 'a'` 表示输入来自于 `id: 'a'` 的 dataset。
+      // 当这些属性都不指定时，默认认为，输入来自于 index 为 `0` 的 dataset 。
+    }
+  ],
+  series: [
+    {
+      type: 'pie',
+      radius: 100,
+      center: ['50%', '50%'],
+      // 这个饼图系列，引用了 index 为 `1` 的 dataset 。
+      datasetIndex: 1
+    },
+  
+  ]
+};
+myChart.setOption(option);
+      
+    </script>
+  </body>
+</html>

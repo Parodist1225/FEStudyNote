@@ -1,11 +1,350 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+     <title>直方图绘制</title>
+     <style type="text/css">
+     .centerlize{
+        margin:0 auto;
+        border:0px solid red;
+        width:1200px;height:600px;
+     }
 
- 
-</body>
+     </style>
+    </head>
+
+     <body onload="draw();">
+        <div class="centerlize">
+            <canvas id="myCanvas" width="1200px" height="600px" style="border:1px dashed black;">
+            </canvas>
+        </div>
+     </body>
 </html>
+<script type="text/javascript">
+// 画布宽度
+const WIDTH=1200;
+
+// 画布高度
+const HEIGHT=600;
+
+// 中心固定圆半径
+const RADIUS=200;
+
+
+// 画图前初始化
+function draw(){
+    var canvas=document.getElementById('myCanvas');    
+    canvas.width=WIDTH;
+    canvas.height=HEIGHT;    
+
+    context=canvas.getContext('2d');   
+    
+    // 进行屏幕坐标系到笛卡尔坐标系的变换，原点移动到画布中央，右方为X正向，上方为Y的正向
+    context.translate(0,HEIGHT-50);
+    context.rotate(getRad(180));
+    context.scale(-1,1);
+
+    slot=new Slot();
+    
+    animate();
+};
+
+//-------------------------------
+// 画图
+//-------------------------------
+function animate(){    
+
+    let datas=[{text:'勇气',count:80},{text:'毅力',count:120},{text:'果敢',count:450},
+              {text:'机敏',count:32},{text:'决心',count:360},{text:'明智',count:230}];
+    slot.update(datas);
+    slot.paintBg(context);
+    slot.paint(context);
+
+}
+
+//-------------------------------
+// Slot对象定义处
+//-------------------------------
+function Slot(){
+    var obj=new Object;
+
+    // 画直方图的数据
+    obj.datas=[];
+
+    // 传入参数更新内部数据
+    obj.update=function(datas){
+        this.datas=datas;
+    };
+
+    // 画背景
+    obj.paintBg=function(ctx){
+        // 清屏
+        ctx.clearRect(0,-50,WIDTH,HEIGHT);
+        
+        // 画轴线
+        //drawAxisX(ctx,0,WIDTH,100);
+       // drawAxisY(ctx,-50,HEIGHT-50,100);
+       
+        drawText(ctx,"cvcvcv",1150,-35);
+    };
+
+    // 画前景
+    obj.paint=function(ctx){  
+        const YMAX=450;
+        
+        let n=this.datas.length;
+
+        // --往下是竖向网格线
+        const stepx=WIDTH/n;
+        const CW=stepx/3;// CW:Column Width
+
+        ctx.lineWidth=0.5;
+        ctx.strokeStyle='gray';
+
+        for(var i=0;i<n;i++){
+            let x=i*stepx;
+            let y=YMAX;
+
+            // 恢复实线
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.closePath();
+
+            // 画虚线
+            ctx.setLineDash([5,2]);
+            ctx.lineDashOffset=1;
+            ctx.beginPath();
+            ctx.moveTo(x+CW, 0);
+            ctx.lineTo(x+CW, y);
+            ctx.moveTo(x+2*CW, 0);
+            ctx.lineTo(x+2*CW, y);
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        // --往下是画横向网格线
+        const stepy=YMAX/n;
+        const GH=stepy/3;// GH:Grid Width
+
+        for(var i=0;i<=n;i++){
+            let y=i*stepy;
+
+            // 恢复实线
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(WIDTH, y);
+            ctx.stroke();
+            ctx.closePath();
+
+            if(i>0){
+                // 画虚线
+                ctx.setLineDash([5,2]);
+                ctx.lineDashOffset=1;
+                ctx.beginPath();
+                ctx.moveTo(0,y-GH);
+                ctx.lineTo(WIDTH, y-GH);
+                ctx.moveTo(0,y-2*GH);
+                ctx.lineTo(WIDTH, y-2*GH);
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        // 以最高点定比例
+        let maxCnt=-1;
+        for(var i=0;i<n;i++){
+            var data=this.datas[i];
+
+            if(data.count>maxCnt){
+                maxCnt=data.count;
+            }
+        }
+        const ratio=YMAX/maxCnt;
+
+        // --往下是画柱状图
+        for(var i=0;i<n;i++){
+            var data=this.datas[i];
+
+            var x=i*stepx+(CW);
+            var y=0;
+            var w=CW;
+            var h=data.count*ratio;
+
+            // 阴影设置
+            ctx.shadowOffsetX=3;
+            ctx.shadowOffsetY=-2;
+            ctx.shadowBlur=1;
+            ctx.shadowColor='rgba(0,0,0,0.5)';
+
+            // 画柱子
+            ctx.fillStyle=getColor(i);
+            ctx.fillRect(x,y,w,h);
+
+            // 取消阴影设置
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+
+            // 在柱子顶写文字
+            ctx.fillStyle="black";
+            drawText(ctx,data.text+"="+data.count,x+CW/2,h+5);
+        }
+
+        // 书写标题
+        ctx.fillStyle="navy";
+        ctx.font="30px 仿宋";
+        drawText(ctx,"Canvas绘制直方图例子",WIDTH/2,HEIGHT-100);
+    };
+    
+    return obj;
+}
+// 连点成线画曲线
+function paintCurve(ctx,color,cds){
+    var SU=1;// Scale Unit
+
+    ctx.strokeStyle = color;
+    ctx.beginPath();        
+    for(var i=0; i<cds.length; i++){  
+        ctx.lineTo(cds[i].x*SU,cds[i].y*SU);
+    }         
+    ctx.stroke();
+    ctx.closePath();
+}
+//-----------------------------------------------
+// 画横轴
+// ctx:画布环境
+// startx:起始点横坐标
+// endx：结束点横坐标
+// step:画刻度的步长，注意画刻度处是步长的整倍数
+//-----------------------------------------------
+function drawAxisX(ctx,startx,endx,step){
+    ctx.save();
+    
+    ctx.lineWidth=0.5;
+    ctx.strokeStyle='navy';
+    ctx.fillStyle='navy';
+
+    // 画轴
+    ctx.beginPath();
+    ctx.moveTo(startx, 0);
+    ctx.lineTo(endx, 0);
+    ctx.stroke();
+    ctx.closePath();
+
+    // 画箭头
+    ctx.beginPath();
+    ctx.moveTo(endx-Math.cos(getRad(15))*10, Math.sin(getRad(15))*10);
+    ctx.lineTo(endx, 0);
+    ctx.lineTo(endx-Math.cos(getRad(15))*10, -Math.sin(getRad(15))*10);
+    ctx.stroke();
+    ctx.closePath();
+    
+    // 画刻度
+    var x,y;
+    y=5;
+    for(x=startx;x<endx;x++){
+        if((x % step)==0){
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, y);
+            
+            ctx.stroke();
+            ctx.closePath();
+
+            drawText(ctx,x+"",x,y-20);
+        }
+    }
+
+    ctx.restore();
+}
+
+//-----------------------------------------------
+// 画纵轴
+// ctx:画布环境
+// starty:起始点纵坐标
+// endy：结束点纵坐标
+// step:画刻度的步长，注意画刻度处是步长的整倍数
+//-----------------------------------------------
+function drawAxisY(ctx,starty,endy,step){
+    ctx.save();
+    
+    ctx.lineWidth=0.5;
+    ctx.strokeStyle='navy';
+    ctx.fillStyle='navy';
+
+    // 画轴
+    ctx.beginPath();
+    ctx.moveTo(0, starty);
+    ctx.lineTo(0, endy);
+    ctx.stroke();
+    ctx.closePath();
+
+    // 画箭头
+    ctx.beginPath();
+    ctx.moveTo(Math.sin(getRad(15))*10, endy-Math.cos(getRad(15))*10);
+    ctx.lineTo(0, endy);
+    ctx.lineTo(-Math.sin(getRad(15))*10, endy-Math.cos(getRad(15))*10);
+    ctx.stroke();
+    ctx.closePath();
+    
+    // 画刻度
+    var x,y;
+    x=5;
+    for(y=starty;y<endy;y+=1){
+        if((y % step)==0){
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(0, y);
+            
+            drawText(ctx,y+"",x-15,y);
+
+            ctx.stroke();
+            ctx.closePath();
+        }
+    }
+}
+
+//-------------------------------
+// 角度得到弧度
+//-------------------------------
+function getRad(degree){
+    return degree/180*Math.PI;
+}
+
+//-------------------------------
+// 得到颜色
+//-------------------------------
+function getColor(index){
+    var arr=["red","purple","blue","green","skyblue","yellow","#aa0000",
+             "orange","maroon","navy",
+             "lime","teal","fuchsia",
+             "aqua","black"];
+
+    if(index>arr.length){
+        index=index % arr.length;
+    }
+
+    return arr[index];
+}
+
+//-------------------------------
+// 在笛卡尔坐标系中绘制文字
+//-------------------------------
+function drawText(ctx,text,x,y){
+    ctx.save();
+    ctx.translate(x,y)
+    ctx.rotate(getRad(180))
+    ctx.scale(-1,1)
+
+    ctx.textBaseline="bottom";
+    ctx.textAlign="center";
+    ctx.fillText(text,0,0);
+    ctx.restore();
+}
+//-->
+</script>
+</body>
+</html> 
