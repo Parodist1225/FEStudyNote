@@ -30,7 +30,7 @@
     function draw() {
       var ctx = document.getElementById('canvas').getContext('2d');
 
-      ctx.globalCompositeOperation = 'destination-over';
+      ctx.globalCompositeOperation = 'destination-over';//源（新）图像放到目标(已有)图像上
       ctx.clearRect(0, 0, 800, 800); // clear canvas
 
       ctx.fillStyle = 'rgba(0,0,0,0.4)';
