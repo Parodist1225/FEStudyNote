@@ -612,7 +612,7 @@ console.log(b instanceof Baz); // false
 (PS:**concat() 方法用于合并两个或多个数组。此方法不会更改现有数组，而是返回一个新数组**
 eg:
 ```js
-const array1 = ['a';
+const array1 = ['a'];
 const array2 = ['d'];
 const array3 = array1.concat(array2);
 console.log(array3);
@@ -2038,3 +2038,1135 @@ Math.tan(x)          返回 x 的正切
 ④当代码开始执行时，全局上下文中会存在两个内置对象：Global 和 Math。其中，Global 对象在大多数 ECMAScript 实现中无法直接访问。浏览器将Global实现为 window 对象。所有全局变量和函数都是 Global 对象的属性。Math 对象包含辅助完成复杂计算的属性和方法。
 ## No6.集合引用类型
 ### I.Object
+大多数引用值的示例使用的是 Object 类型。Object 是ECMAScript 中最常用的类型之一，很适合存储和在应用程序间交换数据
+* 显式地创建 Object 的实例有两种方式
+1. new 操作符和 Object 构造函数
+```js
+let person = new Object();
+//同let person = {};
+person.name = "Nicholas";
+person.age = 29;
+```
+2. 对象字面量（object literal）表示法
+(属性名可以是字符串或数值)
+```js
+let person = {
+ name: "Nicholas",
+ age: 29.
+ 5: true .
+};
+```
+>在使用对象字面量表示法定义对象时，并不会实际调用 Object 构造函数。
+3. 实际开发中一个很好的例子
+```js
+function displayInfo(args) {
+ let output = "";
+ if (typeof args.name == "string"){
+ output += "Name: " + args.name + "\n";
+ }
+ if (typeof args.age == "number") {
+ output += "Age: " + args.age + "\n";
+ }
+ alert(output);
+}
+displayInfo({
+ name: "Nicholas",
+ age: 29
+});
+displayInfo({
+ name: "Greg"
+}); 
+```
+### II.Array
+#### ①创建数组
+1. 使用 Array 构造函数
+```js
+let colors = Array(3); // 创建一个包含 3 个元素的数组
+let names = Array("Greg"); // 创建一个只包含一个元素，即字符串"Greg"的数组
+```
+2. 用数组字面量（array literal）表示法
+```js
+let colors = ["red", "blue", "green"]; 
+// 创建一个包含 3 个元素的数组
+let names = []; // 创建一个空数组
+```
+3. from()用于将类数组结构转换为数组实例，而 of()用于将一组参数转换为数组实例。
+```js
+// 1.字符串会被拆分为单字符数组
+console.log(Array.from("Matt")); // ["M", "a", "t", "t"]
+// 2.可以使用 from()将集合和映射转换为一个新数组
+const m = new Map().set(1, 2)
+ .set(3, 4);
+const s = new Set().add(1)
+ .add(2)
+ .add(3)
+ .add(4);
+console.log(Array.from(m)); // [[1, 2], [3, 4]]
+console.log(Array.from(s)); // [1, 2, 3, 4]
+// 3.arguments 对象可以被轻松地转换为数组
+function getArgsArray() {
+ return Array.from(arguments);
+}
+console.log(getArgsArray(1, 2, 3, 4)); // [1, 2, 3, 4]
+// 4.转换带有必要属性的自定义对象
+const arrayLikeObject = {
+ 0: 1,
+ 1: 2,
+ 2: 3,
+ 3: 4,
+ length: 4
+};
+console.log(Array.from(arrayLikeObject)); // [1, 2, 3, 4] 
+// 5.Array.from()对现有数组执行浅复制
+const a1 = [1, 2, 3, 4];
+const a2 = Array.from(a1);
+console.log(a1); // [1, 2, 3, 4]
+alert(a1 === a2); // false
+```
+#### ②数组空位
+```js
+const options = [,,,,,]; // 创建包含 5 个元素的数组
+console.log(options.length); // 5
+console.log(options); // [,,,,,] 
+```
+空位值为 undefined
+>实践中要避免使用数组空位。如果确实需要空位，则可以显式地用 undefined 值代替。
+#### ③数组索引
+数组 length 属性的独特之处在于，它不是只读的。通过修改 length 属性，可以从数组末尾删除或添加元素。新添加的元素都将以undefined 填充
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含 3 个字符串的数组
+colors[colors.length] = "black"; // 添加一种颜色（位置 3）
+colors[colors.length] = "brown"; // 再添加一种颜色（位置 4）
+```
+>数组最多可以包含 4 294 967 295 个元素
+#### ④检测数组
+```js
+if (value instanceof Array){
+ // 操作数组
+} 
+```
+但是，使用 instanceof 的问题是假定只有一个全局执行上下文。**如果网页里有多个框架，则可能涉及两个不同的全局执行上下文**，因此就会有两个不同版本的 Array 构造函数。如果要把数组从一个框架传给另一个框架，则这个数组的构造函数将有别于在第二个框架内本地创建的数组.isArray()为解决办法
+```js
+if (Array.isArray(value)){
+ // 操作数组
+} 
+```
+#### ⑤迭代器方法
+keys()返回数组索引的迭代器，values()返回数组元素的迭代器，而 entries()返回
+索引/值对的迭代器：
+```js
+const a = ["foo", "bar", "baz", "qux"];
+// 因为这些方法都返回迭代器，所以可以将它们的内容
+// 通过 Array.from()直接转换为数组实例
+const aKeys = Array.from(a.keys());
+const aValues = Array.from(a.values());
+const aEntries = Array.from(a.entries());
+console.log(aKeys);
+// [0, 1, 2, 3]
+console.log(aValues); 
+// ["foo", "bar", "baz", "qux"]
+console.log(aEntries);
+ // [[0, "foo"], [1, "bar"], [2, "baz"], [3, "qux"]]
+```
+使用 ES6 的解构可以非常容易地在循环中拆分键/值对：
+```js
+const a = ["foo", "bar", "baz", "qux"];
+for (const [idx, element] of a.entries()) {
+ alert(idx);
+ alert(element);
+}
+// 0
+// foo
+// 1
+// bar
+// 2
+// baz
+// 3
+// qux 
+```
+#### ⑥复制和填充方法
+1. fill()
+```js
+const zeroes = [0, 0, 0, 0, 0];
+// 用 5 填充整个数组
+zeroes.fill(5);
+console.log(zeroes); // [5, 5, 5, 5, 5]
+zeroes.fill(0); // 重置
+// 用 6 填充索引大于等于 3 的元素
+zeroes.fill(6, 3);
+console.log(zeroes); // [0, 0, 0, 6, 6]
+zeroes.fill(0); // 重置
+// 用 7 填充索引大于等于 1 且小于 3 的元素
+zeroes.fill(7, 1, 3);
+console.log(zeroes); // [0, 7, 7, 0, 0];
+zeroes.fill(0); // 重置
+// 用 8 填充索引大于等于 1 且小于 4 的元素
+// (-4 + zeroes.length = 1)
+// (-1 + zeroes.length = 4)
+zeroes.fill(8, -4, -1);
+console.log(zeroes); // [0, 8, 8, 8, 0];
+```
+2. copyWithin()
+```js
+let ints,
+ reset = () => ints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+reset();
+// 从 ints 中复制索引 0 开始的内容，插入到索引 5 开始的位置
+
+// 在源索引或目标索引到达数组边界时停止
+
+ints.copyWithin(5);
+console.log(ints); // [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+reset();
+// 从 ints 中复制索引 5 开始的内容，插入到索引 0 开始的位置
+ints.copyWithin(0, 5);
+console.log(ints); // [5, 6, 7, 8, 9, 5, 6, 7, 8, 9]
+reset();
+// 从 ints 中复制索引 0 开始到索引 3 结束(不包括3)的内容
+// 插入到索引 4 开始的位置
+ints.copyWithin(4, 0, 3);
+alert(ints); // [0, 1, 2, 3, 0, 1, 2, 7, 8, 9]
+reset();
+// JavaScript 引擎在插值前会完整复制范围内的值
+// 因此复制期间不存在重写的风险
+ints.copyWithin(2, 0, 6);
+alert(ints); // [0, 1, 0, 1, 2, 3, 4, 5, 8, 9]
+reset();
+// 支持负索引值，与 fill()相对于数组末尾计算正向索引的过程是一样的
+ints.copyWithin(-4, -7, -3);
+//ints.copyWithin(6,3,7)
+alert(ints); // [0, 1, 2, 3, 4, 5, 3, 4, 5, 6]
+```
+#### ⑦转换方法
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含 3 个字符串的数组
+alert(colors.toString()); // red,blue,green
+alert(colors.valueOf()); // red,blue,green
+alert(colors); // red,blue,green
+```
+继承的方法 toLocaleString()以及 toString()都返回数组值的逗号分隔的字符串。如果想使用不同的分隔符，则可以使用 join()方法。join()方法接收一个参数，即字符串分隔符.
+```js
+let colors = ["red", "green", "blue"];
+alert(colors.join(",")); // red,green,blue
+alert(colors.join("||")); // red||green||blue
+```
+#### ⑧栈方法
+* push()方法接收任意数量的参数，并将它们添加到数组末尾，返回数组的最新长度。
+* pop()方法则用于删除数组的最后一项，同时减少数组的 length 值，返回被删除的项
+```js
+let colors = new Array(); // 创建一个数组
+let count = colors.push("red", "green"); // 推入两项
+alert(count); // 2
+count = colors.push("black"); // 再推入一项
+alert(count); // 3
+let item = colors.pop(); // 取得最后一项
+alert(item); // black
+alert(colors.length); // 2 
+```
+#### ⑨队列方法
+队列以先进先出（FIFO，First-In-First-Out）形式限制访问。**队列在列表末尾添加数据，但从列表开头获取数据**。因为有了在数据末尾添加数据的 push()方法，所以要模拟队列就差一个从数组开头取得数据的方法了。
+* shift()，它会删除数组的第一项并返回它，然后数组长度减 1。使用 shift()和 push()，可以把数组当成队列来使用：
+```js
+let colors = new Array(); // 创建一个数组
+let count = colors.push("red", "green"); // 推入两项
+count = colors.push("black"); // 再推入一项
+alert(count); // 3
+let item = colors.shift(); // 取得第一项
+alert(item); // red
+alert(colors.length); // 2
+```
+* unshift()方法,在数组开头添加任意多个值，然后返回新的数组长度
+#### ⑩排序方法
+reverse()和 sort()同python
+* sort()升序排列，但是会执行String()方法
+```js
+let values = [0, 1, 5, 10, 15];
+values.sort();
+alert(values); // 0,1,10,15,5
+//字符串"10"在字符串"5"的前头，所以 10 还是会排到 5 前面
+```
+优化：
+```js
+function compare(value1, value2) {
+ if (value1 < value2) {
+ return -1;
+ } else if (value1 > value2) {
+ return 1;
+ } else {
+ return 0;
+ }
+}
+
+let values = [0, 1, 5, 10, 15];
+values.sort(compare);
+alert(values); // 0,1,5,10,15 
+```
+-1和1交换即降序排列,可简写为箭头函数
+```js
+let values = [0, 1, 5, 10, 15];
+values.sort((a, b) => a < b ? 1 : a > b ? -1 : 0);
+alert(values); // 15,10,5,1,0 
+```
+>reverse()和 sort()都返回调用它们的数组的引用。
+
+#### 11.操作方法 ※splice()
+* concat()方法(参考Symbol 7. Symbol.isConcatSpreadable ※)
+```js
+let colors = ["red", "green", "blue"];
+let newColors = ["black", "brown"];
+let moreNewColors = {
+ [Symbol.isConcatSpreadable]: true,
+ length: 2,
+ 0: "pink",
+ 1: "cyan"
+};
+newColors[Symbol.isConcatSpreadable] = false;
+// 强制不打平数组
+let colors2 = colors.concat("yellow", newColors);
+// 强制打平类数组对象
+let colors3 = colors.concat(moreNewColors);
+console.log(colors); // ["red", "green", "blue"]
+console.log(colors2); // ["red", "green", "blue", "yellow", ["black", "brown"]]
+console.log(colors3); // ["red", "green", "blue", "pink", "cyan"] 
+```
+* slice()
+```js
+let colors = ["red", "green", "blue", "yellow", "purple"];
+let colors2 = colors.slice(1);
+let colors3 = colors.slice(1, 4);
+alert(colors2); // green,blue,yellow,purple
+alert(colors3); // green,blue,yellow
+```
+* splice()
+1. 删除。需要给 splice()传 2 个参数：要删除的第一个元素的位置和要删除的元素数量。
+2. 插入。splice()在删除(第二个参数不为0)元素的同时可以在指定位置插入新元素，同样要传入 3 个参数：**开始位置、要删除元素的数量 、 要插入的任意多个元素**。要插入的元素数量不一定跟删除的元素数量一致。
+```js
+let colors = ["red", "green", "blue"];
+let removed = colors.splice(0,1); // 删除第一项
+alert(colors); // green,blue
+alert(removed); // red，只有一个元素的数组
+
+removed = colors.splice(1, 0, "yellow", "orange"); // 在位置 1 插入两个元素
+alert(colors); // green,yellow,orange,blue
+alert(removed); // 空数组
+
+removed = colors.splice(1, 1, "red", "purple"); // 插入两个值，删除一个元素
+alert(colors); // green,red,purple,orange,blue
+alert(removed); // yellow，只有一个元素的数组
+```
+#### 12.搜索和位置方法
+1. 严格相等
+indexOf()和 lastIndexOf()都返回要查找的元素在数组中的位置，如果没找到则返回-1。includes()返回布尔值，表示是否至少找到一个与指定元素匹配的项。在比较第一个参数跟数组每一项时，会使用**全等（===）**比较，也就是说两项必须严格相等
+```js
+let person = { name: "Nicholas" };
+let people = [{ name: "Nicholas" }];
+let morePeople = [person];
+alert(people.indexOf(person)); // -1
+alert(morePeople.indexOf(person)); // 0
+alert(people.includes(person)); // false
+alert(morePeople.includes(person)); // true
+```
+2. 断言函数
+find()和 findIndex()方法使用了断言函数。这两个方法都从数组的最小索引开始。
+* find()返回第一个匹配的元素
+* findIndex()返回第一个匹配元素的索引。
+这两个方法也都接收第二个可选的参数，用于指定断言函数内部 this 的值
+```js
+const people = [
+ {
+ name: "Matt",
+ age: 27
+ },
+ {
+ name: "Nicholas",
+ age: 29
+ }
+];
+alert(people.find((element, index, array) => element.age < 28));
+// {name: "Matt", age: 27}
+alert(people.findIndex((element, index, array) => element.age < 28));
+// 0 
+```
+#### 13.迭代方法 ※
+* every()：对数组每一项都运行传入的函数，如果对每一项函数都返回 true，则这个方法返回 true。
+* some()：对数组每一项都运行传入的函数，如果有一项函数返回 true，则这个方法返回 true。
+```js
+let numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+let everyResult = numbers.every((item, index, array) => item > 2);
+alert(everyResult); // false
+let someResult = numbers.some((item, index, array) => item > 2);
+alert(someResult); // true 
+```
+
+* filter()：对数组每一项都运行传入的函数，函数返回 true 的项会组成数组之后返回。
+```js
+let numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+let filterResult = numbers.filter((item, index, array) => item > 2);
+alert(filterResult); // 3,4,5,4,3
+```
+* forEach()：对数组每一项都运行传入的函数，没有返回值。
+(相当于使用 for 循环遍历数组)
+* map()：对数组每一项都运行传入的函数，返回由每次函数调用的结果构成的数组。
+```js
+let numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+let mapResult = numbers.map((item, index, array) => item * 2);
+alert(mapResult); // 2,4,6,8,10,8,6,4,2 
+```
+#### 14.归并方法
+* reduce()方法从数组第一项开始遍历到最后一项。
+* reduceRight()从最后一项开始遍历至第一项
+传给 reduce()和 reduceRight()的函数接收 4 个参数：**上一个归并值、当前项、当前项的索引和数组本身**。
+(PS:每次他们都返回上一次的结果；若是从头开始，prev为数组第一项，cur为第二项)
+```js
+//使用 reduce()函数执行累加数组中所有数值的操作：
+let values = [1, 2, 3, 4, 5];
+let sum = values.reduce((prev, cur, index, array) => prev + cur);
+alert(sum); // 15
+```
+### III.定型数组
+定型数组（typed array）目的是提升向原生库传输数据的效率。
+实际上，JavaScript 并没有“TypedArray”类型，它所指的其实是一种特殊的包含数值类型的数组。
+#### ①ArrayBuffer
+Float32Array 实际上是一种“视图”，可以允许 JavaScript 运行时访问一块名为 ArrayBuffer 的预分配内存。
+* ArrayBuffer 是所有定型数组及视图引用的基本单位。
+* ArrayBuffer()是一个普通的 JavaScript 构造函数，可用于在内存中分配特定数量的字节空间。
+```js
+const buf = new ArrayBuffer(16); // 在内存中分配 16 字节
+alert(buf.byteLength); // 16
+```
+ArrayBuffer 一经创建就不能再调整大小。不过，可以使用 slice()复制其全部或部分到一个新实例中：
+```js
+const buf1 = new ArrayBuffer(16);
+const buf2 = buf1.slice(4, 12);
+alert(buf2.byteLength); // 8
+```
+>ArrayBuffer 某种程度上类似于 C++的 malloc()，但也有几个明显的区别。
+1. malloc()在分配失败时会返回一个 null 指针。ArrayBuffer 在分配失败时会抛出错误。
+2. malloc()可以利用虚拟内存，因此最大可分配尺寸只受可寻址系统内存限制。ArrayBuffer分配的内存不能超过 Number.MAX_SAFE_INTEGER（2^53^-1）字节。
+3. malloc()调用成功不会初始化实际的地址。声明 ArrayBuffer 则会将所有二进制位初始化为 0。
+4. 通过 malloc()分配的堆内存除非调用 free()或程序退出，否则系统不能再使用。而通过声明ArrayBuffer 分配的堆内存可以被当成垃圾回收，不用手动释放。 
+#### ②DataView（M @)
+要读取或写入 ArrayBuffer，就必须通过视图
+#### ③定型数组184
+2. 合并、复制和修改定型数组
+set()从提供的数组或定型数组中把值复制到当前定型数组中指定的索引位置：
+```js
+// 创建长度为 8 的 int16 数组
+const container = new Int16Array(8);
+// 把定型数组复制为前 4 个值
+// 偏移量默认为索引 0
+container.set(Int8Array.of(1, 2, 3, 4));
+console.log(container); // [1,2,3,4,0,0,0,0]
+// 把普通数组复制为后 4 个值
+// 偏移量 4 表示从索引 4 开始插入
+container.set([5,6,7,8], 4);
+console.log(container); // [1,2,3,4,5,6,7,8]
+// 溢出会抛出错误
+container.set([5,6,7,8], 7);
+// RangeError
+```
+subarray()会基于从原始定型数组中复制的值返回一个新定型数组。
+```js
+const source = Int16Array.of(2, 4, 6, 8);
+// 把整个数组复制为一个同类型的新数组
+const fullCopy = source.subarray();
+console.log(fullCopy); // [2, 4, 6, 8]
+// 从索引 2 开始复制数组
+const halfCopy = source.subarray(2);
+console.log(halfCopy); // [6, 8]
+// 从索引 1 开始复制到索引 3
+const partialCopy = source.subarray(1, 3);
+console.log(partialCopy); // [4, 6] 
+```
+### IV.Map
+（Object 2.0)
+#### ①.基本API
+初始化
+```js
+// 使用嵌套数组初始化映射
+const m1 = new Map([
+ ["key1", "val1"],
+ ["key2", "val2"],
+ ["key3", "val3"]
+]);
+alert(m1.size); // 3
+```
+初始化之后，可以使用 set()方法再添加键/值对。
+* 可以使用 get()和 has()进行查询
+* 可以通过 size 属性获取映射中的键/值对的数量
+* 可以使用 delete()和 clear()删除值。
+```js
+const m = new Map();
+alert(m.has("firstName")); // false
+alert(m.get("firstName")); // undefined
+alert(m.size); // 0
+
+m.set("firstName", "Matt")
+ .set("lastName", "Frisbie");
+alert(m.has("firstName")); // true
+alert(m.get("firstName")); // Matt
+alert(m.size); // 2
+
+m.delete("firstName"); // 只删除这一个键/值对
+alert(m.has("firstName")); // false
+alert(m.has("lastName")); // true
+alert(m.size); // 1
+
+m.clear(); // 清除这个映射实例中的所有键/值对
+alert(m.size); // 0  
+```
+set()方法返回映射实例，因此可以把多个操作连缀起来，包括初始化声明：
+```js
+const m = new Map().set("key1", "val1");
+m.set("key2", "val2")
+ .set("key3", "val3");
+alert(m.size); // 3 
+```
+与 Object 只能使用数值、字符串或符号作为键不同<strong> Map 可以使用任何 JavaScript 数据类型作为键。与 Object 类似，映射的值是没有限制的。例如下面使用了函数作为键。</strong>
+```js
+const m = new Map();
+const functionKey = function() {};
+m.set(functionKey, "functionValue");
+alert(m.get(functionKey)); // functionValue
+```
+(PS:若是使用+0作为键，用-0也能获取+0对应的值；
+NaN也是如此)
+#### ②.顺序与迭代
+不同于Object,Map 实例会维护键值对的插入顺序，故可根据插入顺序执
+行迭代操作
+```js
+const m = new Map([
+ ["key1", "val1"],
+ ["key2", "val2"],
+ ["key3", "val3"]
+]);
+
+alert(m.entries === m[Symbol.iterator]); // true
+
+for (let pair of m.entries()) {
+ alert(pair);
+}
+// [key1,val1]
+// [key2,val2]
+// [key3,val3] 
+console.log([...m]); 
+// [[key1,val1],[key2,val2],[key3,val3]]
+m.forEach((val, key) => alert(`${key} -> ${val}`));
+// key1 -> val1
+// key2 -> val2
+// key3 -> val3 
+
+//keys()和 values()分别返回以插入顺序生成键和值的迭代器
+for (let key of m.keys()) {
+ alert(key);
+}
+// key1
+// key2
+// key3 
+```
+作为键的字符串原始值是不能修改的,
+即使修改了作为键的对象的属性，对象在映射内部仍然引用相同的值
+```js
+const keyObj = {id: 1};
+const m = new Map([
+ [keyObj, "val1"]
+]);
+for (let key of m.keys()) {
+ key.id = 2;
+ alert(key); // {id: 2}
+ alert(m.get(keyObj)); // val1
+}
+alert(keyObj); // {id: 2}
+```
+#### ③.选择 Object 还是 Map
+1. 内存占用
+相同内存下.Map 大约可以比 Object 多存储 50%的键/值对。
+2. 插入性能
+插入 Map 在所有浏览器中一般会稍微快一点儿
+3. 查找速度
+但如果只包含少量键/值对，Object 有时候速度更快
+4. 删除性能
+使用 delete 删除 Object 属性的性能饱受诟病;
+Map 的 delete()操作都比插入和查找更快;
+### V.WeakMap(弱映射)
+WeakMap 中的“weak”（弱），描述的是 JavaScript 垃圾回收程序对待“弱映射”中键的方式
+#### ①基本API
+```js
+const wm = new WeakMap();
+```
+**弱映射中的键只能是 Object 或者继承自 Object 的类型** ，
+值的类型没有限制。
+```js
+// 原始值可以先包装成对象再用作键
+const stringKey = new String("key1");
+const wm3 = new WeakMap([
+ stringKey, "val1"
+]);
+alert(wm3.get(stringKey)); // "val1"
+```
+初始化之后可以使用 set()再添加键/值对，可以使用 get()和 has()查询，还可以使用 delete()删除  （同Map)
+#### ②弱键
+只要键存在，键/值对就会存在于映射中，并被当作对值的引用，就不会被当作垃圾回收。
+```js
+const wm = new WeakMap();
+wm.set({}, "val");
+因为没有指向这个对象的其他引用，
+所以当这行代码执行完成后，这个对象键就会被当作垃圾回收。
+然后这个键/值对就从弱映射中消失了，
+使其成为一个空映射。
+在这个例子中，因为值也没有被引用，
+所以这对键/值被破坏以后，值本身也会成为垃圾回收的目标。
+```
+```js
+const wm = new WeakMap();
+const container = {
+ key: {}
+};
+wm.set(container.key, "val");
+function removeReference() {
+ container.key = null;
+}
+container 对象维护着一个对弱映射键的引用，
+因此这个对象键不会成为垃圾回收的目标。
+如果调用了 removeReference()，
+就会摧毁键对象的最后一个引用，
+垃圾回收程序就可以把这个键/值对清理掉
+```
+#### ③不可迭代键  ※
+* WeakMap 中的键/值对任何时候都可能被销毁，无迭代其键/值对的能力。
+* 不可能在不知道对象引用的情况下从弱映射中取得值。即便代码可以访问 WeakMap 实例，也没办法看到其中的内容
+* WeakMap 实例限制只能用对象作为键，是为了保证只有通过键对象的引用才能取得值。
+如果允许原始值，那就没办法区分初始化时使用的字符串字面量和初始化之后使用的一个相等的字符串了。
+（PS：为了使初始化时用的一个量和初始化之后一个对应原始值冲突）
+#### ④使用弱映射
+1. 私有变量
+**私有变量会存储在弱映射中，以对象实例为键，以私有成员的字典为值**
+用一个闭包把 WeakMap 包装起来，弱映射与外界完全隔离开了：
+```js
+const User = (() => {
+ const wm = new WeakMap();
+ class User {
+ constructor(id) {
+ this.idProperty = Symbol('id');
+ this.setId(id);
+ }
+ setPrivate(property, value) {
+ const privateMembers = wm.get(this) || {};
+ privateMembers[property] = value;
+ wm.set(this, privateMembers);
+ }
+ getPrivate(property) {
+ return wm.get(this)[property];
+ }
+ setId(id) {
+ this.setPrivate(this.idProperty, id);
+ }
+ getId(id) {
+ return this.getPrivate(this.idProperty);
+ }
+ }
+ return User;
+})();
+const user = new User(123);
+alert(user.getId()); // 123
+user.setId(456);
+alert(user.getId()); // 456
+//若不加闭包，下面代码就会成立，不算是私有
+alert(wm.get(user)[user.idProperty]); // 456
+```
+2. DOM 节点元数据
+WeakMap 实例不会妨碍垃圾回收，所以非常适合保存关联元数据
+```js
+//使用Map,原来的登录按钮从 DOM 树中被删掉了。
+//但由于映射中还保存着按钮的引用，所以对应的 DOM 节点仍然会逗留在内存中，
+//除非明确将其从映射中删除或者等到映射本身被销毁。
+const m = new Map();
+const loginButton = document.querySelector('#login');
+// 给这个节点关联一些元数据
+m.set(loginButton, {disabled: true});
+
+//使用的是弱映射，那么当节点从 DOM 树中被删除后，
+//垃圾回收程序就可以立即释放其内存（假设没有其他地方引用这个对象）
+const wm = new WeakMap();
+```
+### VI.Set（集合数据结构）（加强的 Map）
+Set 在很多方面都像是加强的 Map，这是因为它们的大多数 API 和行为都是共有的
+#### ①基本API
+```js
+// 使用数组初始化集合
+const s1 = new Set(["val1", "val2", "val3"]);
+alert(s1.size); // 3 
+```
+* 可以使用 add()增加值，使用 has()查询，通过 size 取得元素数量，以及使用 delete()和 clear()删除元素.**delete()返回一个布尔值，表示集合中是否存在要删除的值**
+* 与 Map 类似，Set 可以包含任何 JavaScript 数据类型作为值。集合也使用 SameValueZero 操作（ECMAScript 内部定义，无法在语言中使用），基本上相当于使用严格对象相等的标准来检查值的匹配性。
+#### ②顺序与迭代
+```js
+集合的 entries()方法返回一个迭代器，
+可以按照插入顺序产生包含两个元素的数组，
+这两个元素是集合中每个值的重复出现：
+const s = new Set(["val1", "val2", "val3"]);
+for (let pair of s.entries()) {
+ console.log(pair);
+}
+// ["val1", "val1"]
+// ["val2", "val2"]
+// ["val3", "val3"]
+for (let value of s.values()) {
+//同for (let value of s[Symbol.iterator]()) {
+ alert(value);
+}
+// val1
+// val2
+// val3
+```
+#### ③定义正式集合操作※
+很多开发者都喜欢使用 Set 操作，但需要手动实现：或者是子类化 Set，或者是定义一个实用函数库。要把两种方式合二为一，可以在子类上实现静态方法，然后在实例方法中使用这些静态方法
+1. 某些 Set 操作是有关联性的，因此最好让实现的方法能支持处理任意多个集合实例。
+2. Set 保留插入顺序，所有方法返回的集合必须保证顺序。
+3. 尽可能高效地使用内存。扩展操作符的语法很简洁，但尽可能避免集合和数组间的相互转换能够节省对象初始化成本。
+4. 不要修改已有的集合实例。union(a, b)或 a.union(b)应该返回包含结果的新集合实例
+
+
+### VII.WeakSet
+#### ①基本API
+描述JavaScript 垃圾回收程序对待“弱集合”中值的方式(与Weakmap中弱键对应)
+**弱集合中的值只能是 Object 或者继承自 Object 的类型**
+#### ②弱值
+```js
+const ws = new WeakSet();
+ws.add({});
+```
+add()方法初始化了一个新对象，并将它用作一个值。因为没有指向这个对象的其他引用，所以当这行代码执行完成后，这个对象值就会被当作垃圾回收。然后，这个值就从弱集合中消失了，使其成为一个空集合。
+```js
+const ws = new WeakSet();
+const container = {
+ val: {}
+};
+ws.add(container.val);
+function removeReference() {
+ container.val = null;
+}
+```
+这一次，container 对象维护着一个对弱集合值的引用，因此这个对象值不会成为垃圾回收的目标。
+#### ③不可迭代值
+#### ④使用弱集合
+```js
+const disabledElements = new Set();
+//const disabledElements = new WeakSet();
+const loginButton = document.querySelector('#login');
+// 通过加入对应集合，给这个节点打上“禁用”标签
+disabledElements.add(loginButton);
+```
+通过查询元素在不在 disabledElements 中，就可以知道它是不是被禁用了。假如元素从 DOM 树中被删除了，它的引用却仍然保存在 Set 中，因此垃圾回收程序也不能回收它。
+* 为了让垃圾回收程序回收元素的内存，可以使用 WeakSet：
+只要 WeakSet 中任何元素从 DOM 树中被删除，垃圾回收程序就可以忽略其存在，而立即释放其内存（假设没有其他地方引用这个对象）。
+### VIII.迭代与扩展操作
+4 种原生集合类型定义了默认迭代器：
+ Array
+ 所有定型数组
+ Map
+ Set
+扩展操作符在对可迭代对象执行浅复制时特别有用，
+只需简单的语法就可以复制整个对象：
+```JS
+let arr1 = [1, 2, 3];
+let arr2 = [...arr1];
+console.log(arr1); // [1, 2, 3]
+console.log(arr2); // [1, 2, 3]
+console.log(arr1 === arr2); // false
+```
+也可以构建数组的部分元素：
+```JS
+let arr1 = [1, 2, 3];
+let arr2 = [0, ...arr1, 4, 5];
+console.log(arr2); // [0, 1, 2, 3, 4, 5]
+```
+浅复制意味着只会复制对象引用：
+```JS
+let arr1 = [{}];
+let arr2 = [...arr1];
+arr1[0].foo = 'bar';
+console.log(arr2[0]); // { foo: 'bar' }
+```
+### IX.小结
+ECMAScript 6 新增了一批引用类型：Map、WeakMap、Set 和 WeakSet。这些类型为组织应用程序数据和简化内存管理提供了新能力。
+
+## No.7迭代器与生成器
+### I.理解迭代
+循环是迭代机制的基础
+迭代会在一个有序集合上进行。（“有序”可以理解为集合中所有项都可以按照既定的顺序被遍历到，特别是开始和结束项有明确的定义。）
+1. 迭代之前需要事先知道如何使用数据结构。数组中的每一项都只能先通过引用取得数组对象，然后再通过[]操作符取得特定索引位置上的项。这种情况并不适用于所有数据结构。
+2. 遍历顺序并不是数据结构固有的。通过递增索引来访问数据是特定于数组类型的方式，并不适用于其他具有隐式顺序的数据结构。
+ES5 新增了 Array.prototype.forEach()方法，向通用迭代需求迈进了一步（但仍然不够理想）：
+```JS
+let collection = ['foo', 'bar', 'baz'];
+collection.forEach((item) => console.log(item));
+// foo
+// bar
+// baz 
+```
+>这个方法解决了单独记录索引和通过数组对象取得值的问题。不过，没有办法标识迭代何时终止。因此这个方法只适用于数组，而且回调结构也比较笨拙。
+### II.迭代器模式
+* 迭代器模式描述了一个方案，把有些结构称为“可迭代对象”（iterable），因为它们实现了正式的 Iterable 接口，而且可以通过迭代器 Iterator 消费。
+* 可以把可迭代对象理解成数组或集合这样的集合类型的对象。它们包含的元素都是有限的，而且都具有无歧义的遍历顺序
+* 可迭代对象不一定是集合对象，也可以是仅仅具有类似数组行为的其他数据结构，比如for计数循环。该循环中生成的值是暂时性的，但循环本身是在执行迭代。
+#### ①可迭代协议
+实现 Iterable 接口（可迭代协议）要求同时具备两种能力：
+支持迭代的自我识别能力和创建实现Iterator 接口的对象
+很多内置类型都实现了 Iterable 接口：
+ 字符串
+ 数组
+ 映射
+ 集合
+ arguments 对象
+ NodeList 等 DOM 集合类型
+**实现可迭代协议的所有类型都会自动兼容接收可迭代对象的任何语言特性。**
+接收可迭代对象的原生语言特性包括：
+1. for-of 循环
+2. 数组解构
+```js
+let arr = ['foo', 'bar', 'baz'];
+let [a, b, c] = arr;
+console.log(a, b, c); // foo, bar, baz
+```
+3. 扩展操作符
+```js
+let arr2 = [...arr];
+console.log(arr2); // ['foo', 'bar', 'baz'] 
+```
+Array.from()
+```js
+let arr3 = Array.from(arr);
+console.log(arr3); // ['foo', 'bar', 'baz']
+```
+创建集合
+```js
+let set = new Set(arr);
+console.log(set); // Set(3) {'foo', 'bar', 'baz'}
+```
+创建映射
+```js
+let pairs = arr.map((x, i) => [x, i]);
+console.log(pairs); // [['foo', 0], ['bar', 1], ['baz', 2]]
+let map = new Map(pairs);
+console.log(map); // Map(3) { 'foo'=>0, 'bar'=>1, 'baz'=>2 } 
+```
+ Promise.all()接收由期约组成的可迭代对象
+ Promise.race()接收由期约组成的可迭代对象
+ yield*操作符，在生成器中使用
+#### ②迭代器协议
+* 每次成功调用 next()，都会返回一个 IteratorResult 对象，其中包含迭代器返回的下一个值。若不调用 next()，则无法知道迭代器的当前位置
+* next()方法返回的迭代器对象 IteratorResult 包含两个属性：done 和 value。
+* done 是一个布尔值，表示是否还可以再次调用 next()取得下一个值；
+* value 包含可迭代对象的下一个值（done 为false），或者 undefined（done 为 true）。
+* done: true 状态称为“耗尽”
+```js
+let arr = ['foo', 'bar'];
+// 执行迭代
+console.log(iter.next()); // { done: false, value: 'foo' }
+console.log(iter.next()); // { done: false, value: 'bar' }
+console.log(iter.next()); // { done: true, value: undefined }
+```
+(ps:如果可迭代对象在迭代期间被修改了，那么迭代器也会反映相应的变化。
+迭代器维护着一个指向可迭代对象的引用，因此迭代器会阻止垃圾回收程序回收可迭代对象
+>一个显式的迭代器实现：
+```js
+class Foo { 
+[Symbol.iterator]() {
+ return {
+ next() {
+ return { done: false, value: 'foo' };
+ }
+ }
+ }
+}
+let f = new Foo();
+// 打印出实现了迭代器接口的对象
+console.log(f[Symbol.iterator]()); // { next: f() {} }
+```
+#### ③自定义迭代器
+与 Iterable 接口类似，任何实现 Iterator 接口的对象都可以作为迭代器使用。
+为了让一个可迭代对象能够创建多个迭代器，必须每创建一个迭代器就对应一个新计数器。可以把计数器变量放到闭包里，然后通过闭包返回迭代器：
+```js
+class Counter {
+ constructor(limit) {
+ this.limit = limit;
+ }
+ [Symbol.iterator]() {
+ let count = 1,
+ limit = this.limit;
+ return {
+ next() {
+ if (count <= limit) {
+ return { done: false, value: count++ };
+ } else {
+ return { done: true, value: undefined };
+ }
+ }
+ };
+ }
+}
+let counter = new Counter(3);
+for (let i of counter) { console.log(i); }
+// 1
+// 2
+// 3
+for (let i of counter) { console.log(i); }
+// 1
+// 2
+// 3 
+```
+#### ④提前终止迭代器
+可选的 return()方法用于指定在迭代器提前关闭时执行的逻辑.可能在下面的情况下使用：
+1. for-of 循环通过 break、continue、return 或 throw 提前退出；
+2. 解构操作并未消费所有值
+如果迭代器没有关闭，则还可以继续从上次离开的地方继续迭代。比如，数组的迭代器就是不能关闭的：
+```js
+let a = [1, 2, 3, 4, 5];
+let iter = a[Symbol.iterator]();
+for (let i of iter) {
+ console.log(i);
+ if (i > 2) {
+ break
+ }
+}
+// 1
+// 2
+// 3
+for (let i of iter) {
+ console.log(i);
+}
+// 4
+// 5 
+```
+* return()方法是可选的，所以并非所有迭代器都是可关闭的。要知道某个迭代器是否可关闭，可以测试这个迭代器实例的 return 属性是不是函数对象
+>仅仅给一个不可关闭的迭代器增加这个方法并不能让它变成可关闭的。这是因为调用 return()不会强制迭代器进入关闭状态。即便如此，return()方法还是会被调用
+```js
+let a = [1, 2, 3, 4, 5];
+let iter = a[Symbol.iterator]();
+iter.return = function() {
+ console.log('Exiting early');
+ return { done: true };
+};
+for (let i of iter) {
+ console.log(i);
+ if (i > 2) {
+ break
+ }
+}
+// 1
+// 2
+// 3
+// 提前退出
+for (let i of iter) {
+ console.log(i);
+}
+// 4
+// 5
+```
+### III.生成器
+#### ①生成器基础
+**生成器的形式是一个函数，函数名称前面加一个星号（*）(\*位置旁有无空格不影响）表示它是一个生成器。只要是可以定义函数的地方，就可以定义生成器**
+```js
+// 生成器函数声明
+function* generatorFn() {}
+// 生成器函数表达式
+let generatorFn = function* () {}
+// 作为对象字面量方法的生成器函数
+let foo = {
+ * generatorFn() {}
+}
+// 作为类实例方法的生成器函数
+class Foo {
+ * generatorFn() {}
+}
+// 作为类静态方法的生成器函数
+class Bar {
+ static * generatorFn() {}
+} 
+```
+* 调用生成器函数会产生一个生成器对象。
+* 生成器对象一开始处于暂停执行（suspended）的状态。
+* 与迭代器相似，生成器对象也实现了 Iterator 接口，因此具有 next()方法。调用这个方法会让生成器开始或恢复执行。
+```js
+function* generatorFn() {
+  console.log('start')
+  return 'foo'; 
+}
+const g = generatorFn();
+console.log(g); // generatorFn {<suspended>}
+//生成器函数只会在初次调用 next()方法后开始执行
+console.log(g.next); // f next() { [native code] }
+console.log(generatorObject.next()); //start
+// { done: true, value: foo } 
+```
+#### ②通过 yield 中断执行
+**yield 关键字可以让生成器停止和开始执行**，也是生成器最有用的地方。生成器函数在遇到 yield关键字之前会正常执行。遇到这个关键字后，执行会停止，函数作用域的状态会被保留。停止执行的生成器函数只能通过在生成器对象上调用 next()方法来恢复执行：
+```js
+function* generatorFn() {
+ yield 'foo';
+ yield 'bar';
+ return 'baz';
+}
+let generatorObject = generatorFn();
+console.log(generatorObject.next()); 
+// { done: false, value: 'foo' }
+console.log(generatorObject.next()); 
+// { done: false, value: 'bar' }
+console.log(generatorObject.next());
+ // { done: true, value: 'baz' }
+```
+* **yield 关键字只能在生成器函数内部使用，用在其他地方会抛出错误**。
+* 类似函数的 return 关键字，yield 关键字**必须直接位于生成器函数定义中，出现在嵌套的非生成器函数中会抛出语法错误：**
+```js
+// 有效
+function* validGeneratorFn() {
+ yield;
+}
+// 无效
+function* invalidGeneratorFnA() {
+ function a() {
+ yield;
+ }
+} 
+```
+1. 生成器对象作为可迭代对象
+在生成器对象上显式调用 next()方法的用处并不大。**把生成器对象当成可迭代对象**，使用起来会更方便：
+```js
+function* generatorFn() {
+ yield 1;
+ yield 2;
+ yield 3;
+}
+for (const x of generatorFn()) {
+ console.log(x);
+}
+// 1
+// 2
+// 3
+```
+
+```js
+function* nTimes(n) {
+ while(n--) {
+ yield;
+ }
+} 
+for (let _ of nTimes(3)) {
+ console.log('foo');
+}
+// foo
+// foo
+// foo
+```
+2. 使用 yield 实现输入和输出
+除了可以作为函数的中间返回语句使用，yield 关键字还可以作为函数的中间参数使用。上一次让生成器函数暂停的 yield 关键字会接收到传给 next()方法的第一个值。这里有个地方不太好理解——
+**第一次调用 next()传入的值不会被使用，因为这一次调用是为了开始执行生成器函数：**
+```js
+function* generatorFn(initial) {
+ console.log(initial);
+ console.log(yield);
+ console.log(yield);
+}
+let generatorObject = generatorFn('foo');
+
+generatorObject.next('bar'); // foo//开始执行
+generatorObject.next('baz'); // baz
+generatorObject.next('qux'); // qux
+
+
+//yield 关键字可以同时用于输入和输出，如下例所示：
+function* generatorFn() {
+ return yield 'foo';
+}
+let generatorObject = generatorFn();
+console.log(generatorObject.next()); // { done: false, value: 'foo' }
+console.log(generatorObject.next('bar')); // { done: true, value: 'bar' } 
+```
+3. 产生可迭代对象(yield *)
+```js
+// 等价的 generatorFn：
+// function* generatorFn() {
+// for (const x of [1, 2, 3]) {
+// yield x;
+// }
+// }
+function* generatorFn() {
+ yield* [1, 2, 3];
+}
+let generatorObject = generatorFn();
+for (const x of generatorFn()) {
+ console.log(x);
+}
+// 1
+// 2
+// 3 
+```
+4. 使用 yield*实现递归算法
+#### ③ 生成器作为默认迭代器（上面在算法中应用※）
+生成器对象实现了 Iterable 接口，而且生成器函数和默认迭代器被调用之后都产生迭代器，生成器格外适合作为默认迭代器
+```js
+class Foo {
+ constructor() {
+ this.values = [1, 2, 3];
+ } 
+* [Symbol.iterator]() {
+ yield* this.values;
+ }
+}
+const f = new Foo();
+for (const x of f) {
+ console.log(x);
+}
+// 1
+// 2
+// 3
+```
+#### ④提前终止生成器
+ 一个实现 Iterator 接口的对象一定有 next()方法，还有一个可选的 return()方法用于提前终止迭代器。生成器对象除了有这两个方法，还有第三个方法：throw()
+ 1. return()
+ * 与迭代器不同，所有生成器对象都有 return()方法，只要通过它进入关闭状态，就无法恢复了。
+* **后续调用 next()会显示 done: true 状态**，而提供的任何返回值都不会被存储或传播。
+2. throw()
+* throw()方法会在暂停的时候将一个提供的错误注入到生成器对象中。**如果错误未被处理，生成器就会关闭**
+```js
+function* generatorFn() {
+ for (const x of [1, 2, 3]) {
+ yield x;
+ }
+}
+const g = generatorFn();
+console.log(g); // generatorFn {<suspended>}
+try {
+ g.throw('foo');
+} catch (e) {
+ console.log(e); // foo
+}
+console.log(g); // generatorFn {<closed>}
+```
+* 假如生成器函数内部处理了这个错误，那么生成器就不会关闭，而且还可以恢复执行。错误处理会跳过对应的 yield，因此在这个例子中会跳过一个值。比如：
+```js
+function* generatorFn() {
+ for (const x of [1, 2, 3]) {
+ try {
+ yield x;
+ } catch(e) {}
+ }
+} 
+const g = generatorFn();
+console.log(g.next()); // { done: false, value: 1}
+g.throw('foo');
+console.log(g.next()); // { done: false, value: 3}
+```
+
+* 在这个例子中，生成器在 try/catch 块中的 yield 关键字处暂停执行。
+* 在暂停期间，throw()方法向生成器对象内部注入了一个错误：字符串"foo"。这个错误会被 yield 关键字抛出。
+* 因为错误是在生成器的 try/catch 块中抛出的，所以仍然在生成器内部被捕获。
+
+## No.8对象、类与面向对象编程
+
+
+
+
+
+
